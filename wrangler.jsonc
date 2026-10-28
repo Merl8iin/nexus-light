@@ -1,0 +1,31 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "nexus-light",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "durable_objects": {
+    "bindings": [
+      { "name": "MCP_OBJECT", "class_name": "NexusMCP" },
+      { "name": "STORE", "class_name": "Store" },
+      { "name": "DOCS", "class_name": "DocRoom" }
+    ]
+  },
+  // SQLite-backed Durable Objects are on the free plan; no R2 (needs a card).
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["NexusMCP", "Store"] },
+    { "tag": "v2", "new_sqlite_classes": ["DocRoom"] }
+  ],
+  // The browser editor (client/editor.ts, bundled by `npm run build:client`).
+  "assets": { "directory": "./public" },
+  // No id: wrangler (and the Deploy button) create the namespace on first deploy.
+  "kv_namespaces": [{ "binding": "OAUTH_KV","id": "6ccc7831c037425d9163e7b32942323c" }],
+  // Keep all stored data in EU data centers. "" = no restriction. Set before storing data.
+  // FEEDBACK_URL: the agent tool send_feedback posts there, only after the user approved the exact text.
+  // Set it to "" to remove the tool. Privacy notice: https://neuro-net.net/nexus-feedback/datenschutz
+  // Optional ByCS: set BYCS_USER, BYCS_PASS and BYCS_SCHOOL (your school number) as secrets.
+  "vars": { "DATA_REGION": "eu", "FEEDBACK_URL": "https://neuro-net.net/nexus-feedback" },
+  // Weekly backup into the ByCS-Drive (Mondays 03:00 UTC), only when ByCS is set up.
+  "triggers": { "crons": ["0 3 * * 1"] },
+  "observability": { "enabled": true }
+}
